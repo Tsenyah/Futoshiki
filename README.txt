@@ -21,6 +21,7 @@ clear Button - clears the current board;
 new puzzle - opens a second window which allows the user to enter the difficulty and gridsize
 tile button - only allows numbers which are in the grid size range
 load - loads the game (has to be set correctly in the code unless it will not work)
+Save - this button Saves the game in its current State
 Dark/ Light modes - chanages the background of the gameboard and menu. also inverts the constraints colours
 Music button - the music starts on launch the button will mute the button when clicked and unmute when pressed again.
 

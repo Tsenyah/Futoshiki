@@ -1,8 +1,16 @@
 package Futopart3.GUI;
 
-
 import Futopart3.futoshiki2.Futoshiki;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -34,6 +42,7 @@ import javafx.stage.Window;
  * @author 184512
  */
 public class FutoshikiController extends AnchorPane {
+
     private boolean on;
     private Futoshiki futo;
     boolean isDark = true;
@@ -66,10 +75,10 @@ public class FutoshikiController extends AnchorPane {
      */
     public FutoshikiController() {
         super();
-         filepath = "src\\audio\\Short_Meditation_Music_"
-                 + "-_3_Minute_Relaxation_Calming-cI4ryatVkKw.wav";
-         musicObject = new MusicStuff();
-         on = true;
+        filepath = "src\\audio\\Short_Meditation_Music_"
+                + "-_3_Minute_Relaxation_Calming-cI4ryatVkKw.wav";
+        musicObject = new MusicStuff();
+        on = true;
         musicObject.playMusic(filepath);
         this.container = new BorderPane();
         this.futo = new Futoshiki(3);
@@ -88,11 +97,22 @@ public class FutoshikiController extends AnchorPane {
     /**
      * openFile method opens the window to enable the user to open a file
      */
-    public void openFile() {
-        FileChooser fileChooser = new FileChooser();
+    public void openFile() throws FileNotFoundException, IOException, ClassNotFoundException {
+        /*FileChooser fileChooser = new FileChooser();
         Window stage = null;
         fileChooser.setTitle("Open Game");
-        fileChooser.showOpenDialog(stage);
+        fileChooser.showOpenDialog(stage);*/
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(("Game.txt")));
+        Futoshiki loadedGame = (Futoshiki) in.readObject();
+        container.setCenter(new FutoshikiBoard(loadedGame, true));
+
+    }
+
+    public void saveGame() throws FileNotFoundException, IOException {
+        Futoshiki temp = futo;
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("Game.txt"));
+        out.writeObject(temp);
+
     }
 
     /**
@@ -152,7 +172,7 @@ public class FutoshikiController extends AnchorPane {
             clearSquares();
             Futoshiki solved = futo;
             if (solved.solve(futo, 0, 0) == false) {
-                                Alert alert = new Alert(AlertType.WARNING);
+                Alert alert = new Alert(AlertType.WARNING);
                 alert.setTitle("Solved");
                 alert.setHeaderText("This game cannot be solved.");
                 alert.setContentText("Please press new game");
@@ -171,12 +191,25 @@ public class FutoshikiController extends AnchorPane {
         });
 
         openGame.setOnAction((ActionEvent load) -> {
-            getButtonSound();
-            openFile();
+            try {
+                getButtonSound();
+                openFile();
+                
+            } catch (IOException ex) {
+                Logger.getLogger(FutoshikiController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(FutoshikiController.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
         });
         saveGame.setOnAction((ActionEvent save) -> {
             getButtonSound();
+            try {
+                saveGame();
+                System.out.println("Game Saved");
+            } catch (IOException ex) {
+                Logger.getLogger(FutoshikiController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
 
         endgame.setOnAction((Finish) -> {
@@ -387,7 +420,7 @@ public class FutoshikiController extends AnchorPane {
         darkMode = createButton("Dark Mode");
         lightMode = createButton("Light Mode");
         stopMusic = createButton("Stop Music");
-        hBox.getChildren().addAll(darkMode, lightMode,stopMusic);
+        hBox.getChildren().addAll(darkMode, lightMode, stopMusic);
         lightMode.setOnAction((lightmode) -> {
             getButtonSound();
             isDark = true;
@@ -407,15 +440,13 @@ public class FutoshikiController extends AnchorPane {
         stopMusic.setOnAction((darkmode) -> {
             getButtonSound();
             if (on == true) {
-               musicObject.pause(); 
-               on = false;
-              
+                musicObject.pause();
+                on = false;
+
+            } else {
+                musicObject.play();
+                on = true;
             }
-            else {
-            musicObject.play();
-            on = true;
-            }
-            
 
         });
         container.setBottom(hBox);
@@ -427,8 +458,8 @@ public class FutoshikiController extends AnchorPane {
      */
     public void getButtonSound() {
 
-        String filepath = "\\src\\audio\\Portal_button_p"
-                + "ress-uZwtzcZ1i9M.wav";
+        String filepath = "src\\futoshikigame\\src\\audio\\Button Click-"
+                + "SoundBible.com-1931397433.wav";
         ButtonMenuSound musicObject = new ButtonMenuSound();
         musicObject.playMusic(filepath);
     }
